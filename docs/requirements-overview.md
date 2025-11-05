@@ -27,6 +27,8 @@ It will have the ability to input a unique campaign code, that will filter the l
 
 The campaigns will be grouped into different sections with top level buttons to filter to the campaigns in each group.
 
+A count of how many campaigns are currently displayed in the filtered list will be shown. This count will update automatically as filters are applied (search term, campaign code, language, or group filters).
+
 The searchable list of campaigns will come from a prayer.tools API directory listing of public campaigns.
 
 Example groupings
