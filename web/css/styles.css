@@ -1,0 +1,705 @@
+/* Grayscale theme - no colors, only black, white, and grays */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+    line-height: 1.6;
+}
+
+#app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Hamburger Button */
+.hamburger-btn {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1001;
+    background-color: #ffffff;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    padding: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.hamburger-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.hamburger-btn span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background-color: #000000;
+    transition: all 0.3s ease;
+    transform-origin: center;
+}
+
+.hamburger-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translateY(6px) translateX(2px);
+}
+
+.hamburger-btn.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translateY(-6px) translateX(2px);
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.hidden {
+    display: none;
+}
+
+/* Navigation Sidebar */
+#navigation {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100vh;
+    background-color: #ffffff;
+    border-left: 1px solid #e0e0e0;
+    padding: 1rem;
+    z-index: 1000;
+    transition: right 0.3s ease;
+    overflow-y: auto;
+}
+
+#navigation.open {
+    right: 0;
+}
+
+.nav-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 3rem;
+}
+
+.nav-button {
+    background-color: #f5f5f5;
+    border: 1px solid #d0d0d0;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #000000;
+    border-radius: 4px;
+    text-align: left;
+    width: 100%;
+}
+
+.nav-button:hover {
+    background-color: #f0f0f0;
+}
+
+.nav-language {
+    padding: 0.75rem;
+    border: 1px solid #d0d0d0;
+    background-color: #ffffff;
+    color: #000000;
+    border-radius: 4px;
+    font-size: 1rem;
+    width: 100%;
+}
+
+/* Main content */
+#main-content {
+    flex: 1;
+    padding: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.screen {
+    width: 100%;
+}
+
+.screen h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: #000000;
+}
+
+.screen h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    margin-top: 1.5rem;
+    color: #000000;
+}
+
+.screen h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+    margin-top: 1rem;
+    color: #000000;
+}
+
+/* Campaign Chooser */
+.filters {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.campaign-count {
+    color: #666666;
+    font-size: 0.95rem;
+    margin: 0.75rem 0 1.5rem 0;
+}
+
+.search-input,
+.code-input,
+.language-filter {
+    padding: 0.75rem;
+    border: 1px solid #d0d0d0;
+    background-color: #ffffff;
+    color: #000000;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.group-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.group-filter-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #d0d0d0;
+    background-color: #ffffff;
+    color: #000000;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.group-filter-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.group-filter-btn.active {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.campaigns-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.campaign-group {
+    margin-bottom: 2rem;
+}
+
+.group-header {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    color: #000000;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 0.5rem;
+}
+
+.campaign-card {
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+}
+
+.campaign-card h3 {
+    margin-top: 0;
+    color: #000000;
+}
+
+.campaign-description {
+    color: #333333;
+    margin: 0.75rem 0;
+}
+
+.campaign-code {
+    color: #666666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.subscribe-btn {
+    padding: 0.75rem 1.5rem;
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.subscribe-btn:hover:not(:disabled) {
+    background-color: #333333;
+}
+
+.subscribe-btn:disabled {
+    background-color: #999999;
+    cursor: not-allowed;
+}
+
+/* Prayer Feed */
+.reminder-summary {
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 4px;
+}
+
+.reminder-summary h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+}
+
+.edit-reminders-btn {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.edit-reminders-btn:hover {
+    background-color: #333333;
+}
+
+.prayer-fuel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.date-group {
+    margin-bottom: 2rem;
+}
+
+.date-header {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #000000;
+    border-bottom: 1px solid #d0d0d0;
+    padding-bottom: 0.5rem;
+}
+
+.prayer-fuel-item {
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+}
+
+.prayer-fuel-item.prayed {
+    background-color: #f0f0f0;
+    border-color: #999999;
+}
+
+.prayer-fuel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.prayer-fuel-item h3 {
+    margin-top: 0;
+    flex: 1;
+}
+
+.prayed-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background-color: #000000;
+    color: #ffffff;
+    border-radius: 50%;
+    font-size: 1rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.fuel-description {
+    color: #333333;
+    margin: 0.75rem 0;
+}
+
+.view-fuel-btn {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.view-fuel-btn:hover {
+    background-color: #333333;
+}
+
+.empty-state {
+    text-align: center;
+    color: #666666;
+    padding: 2rem;
+}
+
+/* Prayer Fuel */
+.fuel-date {
+    color: #666666;
+    margin-bottom: 1.5rem;
+}
+
+.fuel-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: center;
+}
+
+.share-btn,
+.language-select {
+    padding: 0.75rem 1.5rem;
+    border: 1px solid #d0d0d0;
+    background-color: #ffffff;
+    color: #000000;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.share-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.fuel-content {
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 4px;
+    line-height: 1.8;
+}
+
+.fuel-content p {
+    margin-bottom: 1rem;
+    color: #000000;
+}
+
+.fuel-content ul {
+    margin: 1rem 0;
+    padding-left: 2rem;
+}
+
+.fuel-content li {
+    margin-bottom: 0.5rem;
+    color: #000000;
+}
+
+.i-prayed-btn {
+    width: 100%;
+    padding: 1rem;
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-top: 2rem;
+}
+
+.i-prayed-btn:hover {
+    background-color: #333333;
+}
+
+.i-prayed-btn.prayed {
+    background-color: #666666;
+}
+
+.i-prayed-btn.prayed:hover {
+    background-color: #555555;
+}
+
+/* Campaigns Screen */
+.campaign-item {
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.campaign-info {
+    flex: 1;
+}
+
+.campaign-actions {
+    position: relative;
+}
+
+.kebab-menu-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #000000;
+    padding: 0.5rem;
+    line-height: 1;
+}
+
+.kebab-menu-btn:hover {
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+
+.kebab-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: #ffffff;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    margin-top: 0.5rem;
+    min-width: 180px;
+}
+
+.kebab-menu.hidden {
+    display: none;
+}
+
+.menu-item {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #000000;
+    font-size: 0.95rem;
+}
+
+.menu-item:hover {
+    background-color: #f0f0f0;
+}
+
+.menu-item:first-child {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+.menu-item:last-child {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.find-new-btn {
+    width: 100%;
+    padding: 1rem;
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-top: 2rem;
+}
+
+.find-new-btn:hover {
+    background-color: #333333;
+}
+
+/* Reminder Config */
+.times-section,
+.days-section {
+    margin-bottom: 2rem;
+}
+
+.times-section h2,
+.days-section h2 {
+    margin-bottom: 1rem;
+}
+
+#times-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.time-input-group {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.time-input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #d0d0d0;
+    background-color: #ffffff;
+    color: #000000;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.remove-time-btn {
+    padding: 0.75rem 1rem;
+    background-color: #666666;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.remove-time-btn:hover {
+    background-color: #333333;
+}
+
+.add-time-btn {
+    padding: 0.75rem 1.5rem;
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.add-time-btn:hover {
+    background-color: #333333;
+}
+
+.day-checkbox {
+    display: block;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+}
+
+.day-checkbox input[type="checkbox"] {
+    margin-right: 0.75rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+}
+
+.reminder-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.save-btn,
+.cancel-btn {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.save-btn {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.save-btn:hover {
+    background-color: #333333;
+}
+
+.cancel-btn {
+    background-color: #f0f0f0;
+    color: #000000;
+    border: 1px solid #d0d0d0;
+}
+
+.cancel-btn:hover {
+    background-color: #e0e0e0;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    #main-content {
+        padding: 0.75rem;
+    }
+
+    .screen h1 {
+        font-size: 1.5rem;
+    }
+
+    #navigation {
+        width: 280px;
+        right: -280px;
+    }
+
+    .filters {
+        gap: 0.5rem;
+    }
+
+    .campaign-item {
+        flex-direction: column;
+    }
+
+    .campaign-actions {
+        margin-top: 1rem;
+        align-self: flex-end;
+    }
+}
+
