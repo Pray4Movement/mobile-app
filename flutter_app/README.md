@@ -8,7 +8,7 @@ A Flutter mobile app prototype for viewing daily prayer content from prayer camp
 - **Prayer Feed**: View prayer fuel grouped by date with reminder management UI
 - **Prayer Fuel**: View detailed prayer content with language switching
 - **Campaigns Management**: Manage subscribed campaigns, change languages, and share
-- **Reminders UI**: Create and manage prayer reminders (UI only, no actual notifications)
+- **Reminders with Notifications**: Create and manage prayer reminders with local push notifications
 - **Local Storage**: All app state is persisted locally using SharedPreferences
 
 ## Requirements Overview
@@ -271,7 +271,10 @@ xcrun simctl list devices
 ## Key Implementation Notes
 
 - **No API Calls**: All data is hardcoded in Dart files
-- **No Notifications**: Reminder UI exists but does not schedule actual notifications
+- **Local Push Notifications**: Reminders schedule actual local notifications that fire at the specified times
+- **Notification Permissions**: The app requests notification permissions on first launch (Android 13+ and iOS)
+- **Notification Taps**: Tapping a notification opens the app and navigates to the Prayer Feed
+- **Weekly Recurring**: Notifications repeat weekly on the selected days
 - **Local Storage**: Uses SharedPreferences for persistence
 - **State Management**: Uses Provider for state management
 - **Navigation**: Uses named routes with conditional initial routing
@@ -282,6 +285,8 @@ xcrun simctl list devices
 - `shared_preferences`: Local storage
 - `intl`: Date formatting
 - `share_plus`: Sharing functionality
+- `flutter_local_notifications`: Local push notifications
+- `timezone`: Timezone support for scheduled notifications
 
 ## Screens
 
@@ -293,9 +298,10 @@ xcrun simctl list devices
 
 ### Prayer Feed
 - View prayer fuel grouped by date
-- Manage reminders (create, edit, delete)
+- Manage reminders (create, edit, delete) with actual push notifications
 - Visual indicators for prayed items
 - Navigate to prayer fuel details
+- Tap notifications to open the app and view prayer content
 
 ### Prayer Fuel
 - View detailed prayer content
@@ -309,12 +315,70 @@ xcrun simctl list devices
 - Change language per campaign
 - Share campaigns
 
+## Notification Features
+
+### How It Works
+
+1. **Creating Reminders**: When you create a reminder, the app schedules local notifications for each selected day of the week at the specified time.
+
+2. **Weekly Recurrence**: Notifications automatically repeat every week on the selected days.
+
+3. **Notification Content**:
+   - If the reminder is for a specific campaign, the notification title includes the campaign name
+   - If the reminder is for all campaigns, it shows a generic "Prayer Reminder" title
+   - The notification body prompts you to tap to view today's prayer content
+
+4. **Notification Taps**: When you tap a notification, the app opens and navigates to the Prayer Feed screen where you can view today's prayer content.
+
+5. **Permissions**:
+   - On Android 13+, the app requests notification permission on first launch
+   - On iOS, notification permissions are requested when the app first tries to schedule a notification
+
+### Notification Behavior in Different App States
+
+The app handles notifications differently depending on whether the app is open, in the background, or closed:
+
+#### When App is Open (Foreground)
+- **Android**: Notifications appear in the system notification tray with sound and vibration
+- **iOS**: Notifications appear as banners/alerts at the top of the screen
+- Tapping the notification navigates to the Prayer Feed screen
+- The notification callback is triggered immediately
+
+#### When App is in Background
+- Notifications appear in the system notification tray
+- Sound and vibration play (if enabled)
+- Tapping the notification opens the app and navigates to the Prayer Feed screen
+- The app handles the notification tap when it comes to foreground
+
+#### When App is Closed/Terminated
+- Notifications appear in the system notification tray
+- Sound and vibration play (if enabled)
+- Tapping the notification launches the app and navigates to the Prayer Feed screen
+- The app detects it was launched from a notification and handles navigation accordingly
+
+#### Key Points
+- Notifications work in all app states (foreground, background, terminated)
+- The notification system handles display automatically - no special code needed for foreground vs background
+- All notifications use the same channel with high importance, ensuring they're always visible
+- Notification taps are handled consistently regardless of app state
+
+### Testing Notifications
+
+To test notifications:
+1. Create a reminder for a time a few minutes in the future
+2. Wait for the notification to appear
+3. Tap the notification to verify it opens the app
+4. Check that notifications repeat on the selected days
+
+**Note**: On Android, you may need to grant "Exact alarm" permission in system settings for notifications to work reliably.
+
 ## Development Notes
 
 This is a prototype application. For production use, you would need to:
 - Integrate with prayer.tools API
-- Implement actual push notifications
 - Add authentication/authorization
 - Add error handling for network requests
 - Add loading states
 - Add offline support with proper caching
+- Handle notification permissions more gracefully with user-friendly dialogs
+- Add background service to reschedule notifications after device reboot

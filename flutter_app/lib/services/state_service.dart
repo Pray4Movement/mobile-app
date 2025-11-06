@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../models/reminder.dart';
 import '../models/preferences.dart';
 import 'storage_service.dart';
+import 'notification_service.dart';
 
 class AppState extends ChangeNotifier {
   List<String> _subscribedCampaignIds = [];
@@ -26,6 +27,9 @@ class AppState extends ChangeNotifier {
       _reminders = await StorageService.loadReminders();
       _prayed = await StorageService.loadPrayedStatus();
       _preferences = await StorageService.loadPreferences();
+
+      // Reschedule all reminders after loading
+      await NotificationService().rescheduleAllReminders(_reminders);
     } catch (e) {
       debugPrint('Error loading state: $e');
     } finally {
@@ -59,17 +63,37 @@ class AppState extends ChangeNotifier {
     _reminders = [..._reminders, reminder];
     notifyListeners();
     await StorageService.saveReminders(_reminders);
+    // Schedule notification for the new reminder
+    await NotificationService().scheduleReminder(reminder);
   }
 
   // Update a reminder
   Future<void> updateReminder(String id, Reminder reminder) async {
+    try {
+      // Find the old reminder to cancel its notifications
+      final oldReminder = _reminders.firstWhere((r) => r.id == id);
+      await NotificationService().cancelReminder(oldReminder);
+    } catch (e) {
+      debugPrint('Error canceling old reminder: $e');
+    }
+
     _reminders = _reminders.map((r) => r.id == id ? reminder : r).toList();
     notifyListeners();
     await StorageService.saveReminders(_reminders);
+    // Schedule notification for the updated reminder
+    await NotificationService().scheduleReminder(reminder);
   }
 
   // Delete a reminder
   Future<void> deleteReminder(String id) async {
+    try {
+      // Find the reminder to cancel its notifications
+      final reminder = _reminders.firstWhere((r) => r.id == id);
+      await NotificationService().cancelReminder(reminder);
+    } catch (e) {
+      debugPrint('Error canceling reminder: $e');
+    }
+
     _reminders = _reminders.where((r) => r.id != id).toList();
     notifyListeners();
     await StorageService.saveReminders(_reminders);
