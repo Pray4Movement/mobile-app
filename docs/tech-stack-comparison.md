@@ -546,6 +546,125 @@ This document compares three cross-platform mobile development options against t
 
 ---
 
+## Option 4: Ionic + Capacitor
+
+### App Size & Optimization
+
+**Base App Size:**
+- **iOS**: ~25-40 MB (includes WebView runtime)
+- **Android**: ~20-35 MB (APK), ~18-30 MB (AAB)
+- **Optimization Strategy**: Web build optimizations (tree shaking, minification) plus Capacitor native shell
+
+**Size Optimization Features:**
+- **Tree Shaking & Minification**: Via bundlers (Vite/Rollup/Webpack depending on framework)
+- **Code Splitting**: Route-level/lazy-loaded modules
+- **Asset Optimization**: Standard web image/font compression pipelines
+- **Bundle Analysis**: Web tooling (e.g., `vite --analyze`, Webpack Bundle Analyzer)
+
+**Runtime Performance:**
+- Runs inside a platform WebView; excellent for content-heavy apps
+- Near-native for simple transitions; complex/physics animations can be less smooth than Flutter/native
+- Capacitor plugins bridge to native for device features
+
+**Optimization Limitations:**
+- WebView layer adds overhead compared to native UI frameworks
+- Heavier DOM/CSS layout for complex screens
+- Performance depends on careful use of virtual lists and avoiding heavy reflows
+
+---
+
+### Technical Requirements Delivery
+
+#### Data Fetching & API Integration
+**Rating: ⭐⭐⭐⭐⭐ (Excellent)**
+
+- **fetch/axios** in the web layer
+- Interceptors for auth, retry with libraries like `axios-retry`
+- Mature web tooling for error handling and logging
+
+**Implementation Complexity**: Low - standard web stack
+
+---
+
+#### Data Storage
+**Rating: ⭐⭐⭐⭐ (Very Good)**
+
+- **Capacitor Preferences** for key-value storage
+- **Capacitor SQLite** (community plugin) for structured/offline data
+- **Filesystem** plugin for larger cached content
+- **Secure Storage** via community plugins (platform-dependent)
+
+**Notes:**
+- Preferences suitable for settings/reminders; SQLite/Filesystem recommended for offline prayer content
+
+**Implementation Complexity**: Medium - choose plugins and handle platform differences
+
+---
+
+#### Push Notifications
+**Rating: ⭐⭐⭐⭐ (Very Good)**
+
+- **@capacitor/push-notifications** for remote tokens (FCM/APNs)
+- **@capawesome/capacitor-local-notifications** (or community) for local scheduling
+- Deep linking via **App** plugin and router integration
+
+**Limitations:**
+- More manual setup than Expo (native configs per platform)
+- Feature parity varies across plugins; background scheduling may need extra setup
+
+**Implementation Complexity**: Medium - plugin setup and platform-specific configuration
+
+---
+
+#### Navigation & Routing
+**Rating: ⭐⭐⭐⭐ (Very Good)**
+
+- **Ionic Router** (React/Angular/Vue) with deep linking support
+- Conditional initial routes and back navigation handled via router
+
+**Implementation Complexity**: Low - mature router ecosystems
+
+---
+
+#### UI Components
+**Rating: ⭐⭐⭐⭐ (Very Good)**
+
+- **Ionic UI** library: cross-platform components with theming
+- Great for lists, search bars, segment controls, action sheets, menus
+- JSON-based content rendering straightforward with web libraries (e.g., `react-markdown`, custom renderers)
+
+**Limitations:**
+- Pixel-perfect native feel can require extra tuning
+
+**Implementation Complexity**: Low - rich component set
+
+---
+
+#### Business Logic
+**Rating: ⭐⭐⭐⭐⭐ (Excellent)**
+
+- Standard TypeScript/JavaScript
+- i18n via `i18next`, `ngx-translate`, etc.
+- Time/date via `date-fns`/`dayjs`
+
+**Implementation Complexity**: Low
+
+---
+
+#### Platform-Specific Features
+**Rating: ⭐⭐⭐⭐ (Very Good)**
+
+- **Capacitor Plugins** for share, notifications, filesystem, secure storage
+- App store deployment via native projects (Xcode/Android Studio)
+
+**Limitations:**
+- Heavier reliance on community plugins versus first-party
+- Some advanced native capabilities may need custom plugins
+
+**Implementation Complexity**: Medium - native projects managed but require platform tools
+
+---
+
 ## Summary Comparison
 
 ### App Size (Approximate)
@@ -555,35 +674,40 @@ This document compares three cross-platform mobile development options against t
 | **React Native + Expo** | 25-35 MB | 20-30 MB | Medium (some overhead) |
 | **Flutter** | 15-25 MB | 12-20 MB | High (AOT compilation) |
 | **React Native Bare** | 15-25 MB | 12-20 MB | High (full control) |
+| **Ionic + Capacitor** | 25-40 MB | 20-35 MB | Medium (WebView + web optimizations) |
 
 ### Technical Requirements Delivery Score
 
-| Requirement Category | Expo | Flutter | RN Bare |
-|---------------------|------|---------|---------|
-| Data Fetching | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| Data Storage | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| Push Notifications | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| Navigation | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| UI Components | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| Business Logic | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| Platform Features | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| Requirement Category | Expo       | Flutter    | RN Bare    | Ionic       |
+|----------------------|------------|------------|------------|-------------|
+| Data Fetching        | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| Data Storage         | ⭐⭐⭐⭐   | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   |
+| Push Notifications   | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   | ⭐⭐⭐⭐   | ⭐⭐⭐⭐   |
+| Navigation           | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   |
+| UI Components        | ⭐⭐⭐⭐   | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   | ⭐⭐⭐⭐   |
+| Business Logic       | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| Platform Features    | ⭐⭐⭐⭐   | ⭐⭐⭐⭐   | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   |
+
 
 ### Overall Recommendation by Priority
 
 **If App Size is Critical:**
 1. **Flutter** - Best balance of size and features
 2. **React Native Bare** - Smallest size, but more setup
-3. **React Native + Expo** - Largest size, but easiest development
+3. **React Native + Expo** - Largest size (with SDK), but easiest development
+4. **Ionic + Capacitor** - Similar to Expo; can be larger due to WebView
 
 **If Development Speed is Critical:**
 1. **React Native + Expo** - Fastest to get started
 2. **Flutter** - Good speed, excellent tooling
 3. **React Native Bare** - Slower initial setup
+4. **Ionic + Capacitor** - Fast if team is web-centric
 
 **If Performance is Critical:**
 1. **Flutter** - Native ARM code, best performance
 2. **React Native Bare** - Good performance with optimization
 3. **React Native + Expo** - Good performance, some overhead
+4. **Ionic + Capacitor** - WebView-bound; best for content-centric apps
 
 **Best Overall Choice for This App:**
 **React Native + Expo** - Best balance of development speed, feature delivery, and community support for this content-heavy app. The slightly larger app size is worth the development velocity and OTA update capabilities.
