@@ -1,0 +1,22 @@
+export const colors = {
+  primary: '#4A90E2',
+  secondary: '#7B68EE',
+  background: '#FFFFFF',
+  surface: '#F5F5F5',
+  text: '#333333',
+  textSecondary: '#666666',
+  textLight: '#999999',
+  border: '#E0E0E0',
+  error: '#E74C3C',
+  success: '#27AE60',
+  warning: '#F39C12',
+  info: '#3498DB',
+  white: '#FFFFFF',
+  black: '#000000',
+  gray: '#808080',
+  lightGray: '#E0E0E0',
+  darkGray: '#404040',
+  subscribed: '#27AE60',
+  prayed: '#27AE60',
+};
+
