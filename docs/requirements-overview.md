@@ -31,6 +31,10 @@ A count of how many campaigns are currently displayed in the filtered list will 
 
 The searchable list of campaigns will come from a prayer.tools API directory listing of public campaigns.
 
+Campaigns that the user is already subscribed to will be visually marked in the chooser (e.g., a "Subscribed" badge with a checkmark and distinct styling) so users can quickly see their existing subscriptions.
+
+The campaign chooser screen will have navigation controls to allow users to exit without subscribing to a campaign. This includes a back button (which navigates to the previous page or to the Campaigns tab if available).
+
 Example groupings
 * Doxa Life
 * 110 Cities
