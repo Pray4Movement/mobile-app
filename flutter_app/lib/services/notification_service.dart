@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -5,6 +7,59 @@ import 'package:flutter/foundation.dart';
 import '../models/reminder.dart';
 import '../services/data_service.dart';
 import 'notification_service_background.dart';
+
+class NotificationTapPayload {
+  NotificationTapPayload({
+    this.campaignId,
+    this.reminderId,
+    this.reminderDay,
+    this.rawPayload,
+  });
+
+  final String? campaignId;
+  final String? reminderId;
+  final String? reminderDay;
+  final String? rawPayload;
+
+  bool get isAllCampaigns => campaignId == null;
+
+  static NotificationTapPayload fromRaw(String? raw) {
+    if (raw == null || raw.isEmpty) {
+      return NotificationTapPayload(rawPayload: raw);
+    }
+
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map<String, dynamic>) {
+        final type = decoded['type'] as String?;
+        if (type == 'campaign') {
+          return NotificationTapPayload(
+            campaignId: decoded['campaignId'] as String?,
+            reminderId: decoded['reminderId'] as String?,
+            reminderDay: (decoded['dayOfWeek'] as String?)?.toLowerCase(),
+            rawPayload: raw,
+          );
+        }
+
+        if (type == 'all') {
+          return NotificationTapPayload(
+            reminderId: decoded['reminderId'] as String?,
+            reminderDay: (decoded['dayOfWeek'] as String?)?.toLowerCase(),
+            rawPayload: raw,
+          );
+        }
+      }
+    } catch (_) {
+      // Fall back to legacy payload handling
+    }
+
+    if (raw == 'all') {
+      return NotificationTapPayload(rawPayload: raw);
+    }
+
+    return NotificationTapPayload(campaignId: raw, rawPayload: raw);
+  }
+}
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -16,7 +71,7 @@ class NotificationService {
   bool _initialized = false;
 
   // Callback for when notification is tapped
-  Function(String? campaignId)? onNotificationTapped;
+  Function(NotificationTapPayload payload)? onNotificationTapped;
 
   // Callback for foreground notifications
   Function(NotificationResponse)? onForegroundNotification;
@@ -30,7 +85,9 @@ class NotificationService {
     // We can use tz.local directly which represents the system's local timezone
 
     // Android initialization settings
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
 
     // iOS initialization settings
     const iosSettings = DarwinInitializationSettings(
@@ -55,7 +112,8 @@ class NotificationService {
     );
 
     // Check if app was launched from a notification
-    final launchDetails = await _notifications.getNotificationAppLaunchDetails();
+    final launchDetails = await _notifications
+        .getNotificationAppLaunchDetails();
     if (launchDetails?.didNotificationLaunchApp ?? false) {
       final response = launchDetails!.notificationResponse;
       if (response != null) {
@@ -72,8 +130,10 @@ class NotificationService {
   }
 
   Future<void> _requestPermissions() async {
-    final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = _notifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     await androidPlugin?.requestNotificationsPermission();
 
     // Request exact alarm permission for Android 12+
@@ -89,24 +149,26 @@ class NotificationService {
 
         // If still not granted, the user will need to manually enable it in settings
         if (granted != true) {
-          debugPrint('Exact alarm permission not granted. User may need to enable it in system settings.');
+          debugPrint(
+            'Exact alarm permission not granted. User may need to enable it in system settings.',
+          );
         }
       }
     }
 
-    final iosPlugin = _notifications.resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>();
-    await iosPlugin?.requestPermissions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    final iosPlugin = _notifications
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
+    await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
   }
 
   // Check if exact alarm permission is granted
   Future<bool> hasExactAlarmPermission() async {
-    final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = _notifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (androidPlugin == null) return false;
 
     final canSchedule = await androidPlugin.canScheduleExactNotifications();
@@ -115,17 +177,20 @@ class NotificationService {
 
   // Request exact alarm permission (may open system settings)
   Future<bool> requestExactAlarmPermission() async {
-    final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = _notifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (androidPlugin == null) return false;
 
     final granted = await androidPlugin.requestExactAlarmsPermission();
     return granted == true;
   }
 
-
   void _onNotificationTapped(NotificationResponse response) {
-    debugPrint('Notification tapped: ${response.id}, payload: ${response.payload}');
+    debugPrint(
+      'Notification tapped: ${response.id}, payload: ${response.payload}',
+    );
 
     // Call foreground notification callback if set
     if (onForegroundNotification != null) {
@@ -133,10 +198,9 @@ class NotificationService {
     }
 
     // Call the main notification tap handler
-    final payload = response.payload;
-    if (payload != null && onNotificationTapped != null) {
-      // Payload format: "campaignId" or "all" for all campaigns
-      onNotificationTapped!(payload == 'all' ? null : payload);
+    if (onNotificationTapped != null) {
+      final payload = NotificationTapPayload.fromRaw(response.payload);
+      onNotificationTapped!(payload);
     }
   }
 
@@ -293,30 +357,42 @@ class NotificationService {
       // Schedule weekly repeating notification
       try {
         // For Android, check if we can use exact alarms
-        final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+        final androidPlugin = _notifications
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >();
 
-        AndroidScheduleMode scheduleMode = AndroidScheduleMode.exactAllowWhileIdle;
+        AndroidScheduleMode scheduleMode =
+            AndroidScheduleMode.exactAllowWhileIdle;
 
         if (androidPlugin != null) {
-          final canScheduleExactAlarms = await androidPlugin.canScheduleExactNotifications();
+          final canScheduleExactAlarms = await androidPlugin
+              .canScheduleExactNotifications();
           debugPrint('Can schedule exact alarms: $canScheduleExactAlarms');
 
           if (canScheduleExactAlarms != true) {
             // Try to request permission first
             debugPrint('Exact alarm permission not granted, requesting...');
-            final requested = await androidPlugin.requestExactAlarmsPermission();
+            final requested = await androidPlugin
+                .requestExactAlarmsPermission();
             debugPrint('Permission request result: $requested');
 
             // Check again after request
-            final canScheduleAfterRequest = await androidPlugin.canScheduleExactNotifications();
-            debugPrint('Can schedule exact alarms after request: $canScheduleAfterRequest');
+            final canScheduleAfterRequest = await androidPlugin
+                .canScheduleExactNotifications();
+            debugPrint(
+              'Can schedule exact alarms after request: $canScheduleAfterRequest',
+            );
 
             if (canScheduleAfterRequest != true) {
               // Fall back to inexact scheduling if exact is not available
               scheduleMode = AndroidScheduleMode.inexactAllowWhileIdle;
-              debugPrint('Falling back to inexact scheduling - exact alarm permission not available');
-              debugPrint('User may need to grant "Alarms & reminders" permission in system settings');
+              debugPrint(
+                'Falling back to inexact scheduling - exact alarm permission not available',
+              );
+              debugPrint(
+                'User may need to grant "Alarms & reminders" permission in system settings',
+              );
             }
           }
         }
@@ -331,18 +407,29 @@ class NotificationService {
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
           matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
-          payload: payload,
+          payload: _buildReminderPayload(reminder, day),
         );
-        debugPrint('Notification scheduled successfully for $day at $scheduledDate');
+        debugPrint(
+          'Notification scheduled successfully for $day at $scheduledDate',
+        );
 
         // Verify the notification was scheduled (Android only)
         if (androidPlugin != null) {
-          final pendingNotifications = await _notifications.pendingNotificationRequests();
-          final scheduled = pendingNotifications.any((n) => n.id == notificationId + dayOfWeek);
-          debugPrint('Notification verification: $scheduled (ID: ${notificationId + dayOfWeek})');
+          final pendingNotifications = await _notifications
+              .pendingNotificationRequests();
+          final scheduled = pendingNotifications.any(
+            (n) => n.id == notificationId + dayOfWeek,
+          );
+          debugPrint(
+            'Notification verification: $scheduled (ID: ${notificationId + dayOfWeek})',
+          );
           if (scheduled) {
-            final notification = pendingNotifications.firstWhere((n) => n.id == notificationId + dayOfWeek);
-            debugPrint('Scheduled notification details: ${notification.title} at scheduled time');
+            final notification = pendingNotifications.firstWhere(
+              (n) => n.id == notificationId + dayOfWeek,
+            );
+            debugPrint(
+              'Scheduled notification details: ${notification.title} at scheduled time',
+            );
           }
         }
       } catch (e) {
@@ -393,9 +480,24 @@ class NotificationService {
     final pending = await _notifications.pendingNotificationRequests();
     debugPrint('=== Pending Notifications (${pending.length}) ===');
     for (final notification in pending) {
-      debugPrint('ID: ${notification.id}, Title: ${notification.title}, Body: ${notification.body}');
+      debugPrint(
+        'ID: ${notification.id}, Title: ${notification.title}, Body: ${notification.body}',
+      );
     }
     debugPrint('==========================================');
   }
-}
 
+  String _buildReminderPayload(Reminder reminder, String day) {
+    final payload = <String, dynamic>{
+      'type': reminder.campaignId != null ? 'campaign' : 'all',
+      'reminderId': reminder.id,
+      'dayOfWeek': day.toLowerCase(),
+    };
+
+    if (reminder.campaignId != null) {
+      payload['campaignId'] = reminder.campaignId;
+    }
+
+    return jsonEncode(payload);
+  }
+}

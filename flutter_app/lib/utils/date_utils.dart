@@ -1,6 +1,14 @@
+String _dateToString(DateTime date) {
+  return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+}
+
 String getDateString(int offset) {
   final date = DateTime.now().add(Duration(days: offset));
-  return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  return _dateToString(date);
+}
+
+String getDateStringFromDate(DateTime date) {
+  return _dateToString(date);
 }
 
 String formatDate(String dateString) {

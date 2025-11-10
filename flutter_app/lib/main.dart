@@ -3,10 +3,13 @@ import 'package:provider/provider.dart';
 import 'theme.dart';
 import 'services/state_service.dart';
 import 'services/notification_service.dart';
+import 'services/data_service.dart';
+import 'models/fuel.dart';
 import 'screens/campaign_chooser_screen.dart';
 import 'screens/prayer_feed_screen.dart';
 import 'screens/prayer_fuel_screen.dart';
 import 'screens/campaigns_screen.dart';
+import 'utils/date_utils.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,27 +46,91 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   void _setupNotifications() {
     // Set up notification tap handler (for when app is in background/terminated)
-    _notificationService.onNotificationTapped = (campaignId) {
-      // Navigate to prayer feed when notification is tapped
-      // If campaignId is provided, we could filter to that campaign
-      // For now, just navigate to prayer feed
-      navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        '/prayer-feed',
-        (route) => false,
-      );
+    _notificationService.onNotificationTapped = (payload) {
+      _handleNotificationNavigation(payload);
     };
 
     // Set up foreground notification handler (for when app is open)
     _notificationService.onForegroundNotification = (response) {
-      // Show a dialog or snackbar when notification arrives while app is in foreground
-      // For now, we'll just navigate - the notification will still appear in the system tray
-      if (response.payload != null) {
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          '/prayer-feed',
-          (route) => false,
-        );
-      }
+      final payload = NotificationTapPayload.fromRaw(response.payload);
+      _handleNotificationNavigation(payload);
     };
+  }
+
+  void _handleNotificationNavigation(NotificationTapPayload payload) {
+    if (payload.campaignId == null) {
+      _navigateToPrayerFeed();
+      return;
+    }
+
+    final campaignId = payload.campaignId!;
+    final targetDateString = _getDateStringForPayload(payload);
+    final todaysFuel = DataService.getFuelByDate(targetDateString);
+
+    Fuel? matchingFuel;
+    for (final fuel in todaysFuel) {
+      if (fuel.campaignId == campaignId) {
+        matchingFuel = fuel;
+        break;
+      }
+    }
+
+    if (matchingFuel != null) {
+      navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        '/prayer-fuel',
+        (route) => false,
+        arguments: {'campaignId': campaignId, 'day': matchingFuel.day},
+      );
+      return;
+    }
+
+    _navigateToPrayerFeed();
+  }
+
+  String _getDateStringForPayload(NotificationTapPayload payload) {
+    final reminderDay = payload.reminderDay;
+    if (reminderDay == null || reminderDay.isEmpty) {
+      return getDateString(0);
+    }
+
+    final targetWeekday = _weekdayFromString(reminderDay);
+    if (targetWeekday == null) {
+      return getDateString(0);
+    }
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final diff = (today.weekday - targetWeekday) % 7;
+    final targetDate = today.subtract(Duration(days: diff));
+    return getDateStringFromDate(targetDate);
+  }
+
+  int? _weekdayFromString(String day) {
+    switch (day.toLowerCase()) {
+      case 'monday':
+        return DateTime.monday;
+      case 'tuesday':
+        return DateTime.tuesday;
+      case 'wednesday':
+        return DateTime.wednesday;
+      case 'thursday':
+        return DateTime.thursday;
+      case 'friday':
+        return DateTime.friday;
+      case 'saturday':
+        return DateTime.saturday;
+      case 'sunday':
+        return DateTime.sunday;
+      default:
+        return null;
+    }
+  }
+
+  void _navigateToPrayerFeed() {
+    navigatorKey.currentState?.pushNamedAndRemoveUntil(
+      '/prayer-feed',
+      (route) => false,
+    );
   }
 
   @override
@@ -117,9 +184,7 @@ class InitialRoute extends StatelessWidget {
       builder: (context, appState, child) {
         if (appState.isLoading) {
           return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+            body: Center(child: CircularProgressIndicator()),
           );
         }
 
