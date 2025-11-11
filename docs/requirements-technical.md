@@ -17,12 +17,13 @@
 - Store user reminder schedules (times, days, preferences)
 - Cache prayer fuel content for offline access
 - Store user preferences (language selection, notification settings)
+- Store prayer completion status per campaign/day for visual indicators
 - Store app state (last viewed campaign, navigation state)
 
 ## Push Notifications
 
 - Schedule local notifications at user-defined times
-- Handle notification taps (deep linking to specific prayer content)
+- Handle notification taps (deep linking to the relevant campaign's current-day prayer content)
 - Support multiple notification schedules per user
 - Handle notification permissions on both platforms
 - Background notification scheduling
@@ -33,6 +34,7 @@
 - Deep linking from notifications to specific content
 - Conditional initial routing (subscribed vs. not subscribed)
 - Back navigation handling
+- Campaign chooser exit paths (back button, return to Campaigns tab)
 
 ## UI Components
 
@@ -40,11 +42,15 @@
 - Filter buttons (by language, by group)
 - Campaign code input field
 - Grouped list views with section headers
+- Dynamic campaign count indicator that updates with filters
 - Kebab menu (context menu) for campaign actions
 - Customizable reminder schedule UI
+- Reminder schedule summary component on the Prayer Feed
 - JSON-based content renderer (headings, lists, images, buttons)
 - Language selector/switcher
 - Share functionality (app sharing, campaign sharing)
+- Subscribed campaign badge styling in chooser listings
+- Prayer status indicator with checkmark for days marked as prayed
 
 ## Business Logic
 
@@ -54,6 +60,7 @@
 - Campaign grouping and filtering logic
 - Language switching per campaign
 - Prayer session tracking (start/end timestamps)
+- Prayer completion state management to drive "I prayed" button states and feed indicators
 
 ## Platform-Specific Features
 

@@ -17,6 +17,8 @@ If they have not subscribed to a campaign it will take them to the campaign choo
 
 From the 'Prayer Feed' screen they can click any day's prayer fuel, which will take them to the 'Prayer Fuel' screen with the chosen day's content loaded.
 
+When a campaign reminder notification is clicked, this should take them to the prayer content for that campaign for the current day.
+
 ## Screens
 
 ### Campaign chooser
