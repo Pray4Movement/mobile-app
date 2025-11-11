@@ -15,6 +15,13 @@
     </ion-header>
     <ion-content :fullscreen="true">
       <div class="container">
+        <div v-if="permissionStatus === 'denied'" class="permission-warning">
+          Notifications are disabled. Enable them in your device settings to receive reminders.
+        </div>
+        <div v-else-if="permissionStatus === 'unsupported'" class="permission-warning">
+          Local notifications are not available on this device. Reminders will not trigger alerts.
+        </div>
+
         <div v-if="reminders.length === 0" class="empty-state">
           <ion-icon :icon="notificationsOutline" size="large" />
           <p>No reminders set</p>
@@ -100,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   IonPage,
@@ -130,7 +137,17 @@ import { useReminders, type Reminder } from '../composables/useReminders';
 import { getDaysOfWeekNames } from '../utils/date';
 
 const router = useRouter();
-const { reminders, addReminder, updateReminder, removeReminder } = useReminders();
+const {
+  reminders,
+  addReminder,
+  updateReminder,
+  removeReminder,
+  requestNotificationPermission,
+  notificationsSupported,
+  notificationPermissionStatus,
+  syncReminderNotifications,
+} = useReminders();
+const permissionStatus = notificationPermissionStatus;
 
 const showAddModal = ref(false);
 const showEditModal = ref(false);
@@ -177,7 +194,7 @@ const deleteReminder = (id: string) => {
   removeReminder(id);
 };
 
-const saveReminder = () => {
+const saveReminder = async () => {
   if (!reminderForm.value.label.trim()) {
     alert('Please enter a label');
     return;
@@ -189,6 +206,20 @@ const saveReminder = () => {
   if (reminderForm.value.times.length === 0) {
     alert('Please enter at least one time');
     return;
+  }
+
+  let permissionGranted = permissionStatus.value === 'granted';
+
+  if (notificationsSupported.value) {
+    if (!permissionGranted) {
+      const permission = await requestNotificationPermission();
+      permissionGranted = permission.granted;
+      if (!permissionGranted) {
+        alert('Reminder saved, but notifications are still disabled. Enable them in settings to receive alerts.');
+      }
+    }
+  } else {
+    alert('Reminder saved, but local notifications are not available on this device.');
   }
 
   if (editingReminder.value) {
@@ -216,6 +247,12 @@ const formatReminderSchedule = (reminder: Reminder): string => {
   const times = reminder.times.join(', ');
   return `${days} at ${times}`;
 };
+
+onMounted(() => {
+  if (notificationsSupported.value) {
+    void syncReminderNotifications();
+  }
+});
 </script>
 
 <style scoped>
@@ -248,6 +285,13 @@ const formatReminderSchedule = (reminder: Reminder): string => {
 .modal-actions {
   margin-top: 24px;
   padding: 16px;
+}
+
+.permission-warning {
+  padding: 8px 16px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--ion-color-warning);
 }
 </style>
 
