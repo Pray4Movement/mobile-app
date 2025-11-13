@@ -4,6 +4,7 @@ import '../models/group.dart';
 import '../data/campaigns_data.dart' as campaigns_data;
 import '../data/fuel_data.dart' as fuel_data;
 import '../data/groups_data.dart' as groups_data;
+import '../config/app_config.dart';
 
 class DataService {
   // Campaign methods
@@ -21,6 +22,13 @@ class DataService {
 
   static List<Campaign> getAllCampaigns() {
     return campaigns_data.campaigns;
+  }
+
+  static List<Campaign> getAvailableCampaigns() {
+    final allCampaigns = campaigns_data.campaigns;
+    final filter = AppConfig.current.campaignGroupFilter;
+    if (filter == null) return allCampaigns;
+    return allCampaigns.where((c) => c.groupId == filter).toList();
   }
 
   // Fuel methods
@@ -47,6 +55,14 @@ class DataService {
 
   static List<Group> getAllGroups() {
     return groups_data.getAllGroups();
+  }
+
+  static List<Group> getAvailableGroups() {
+    final availableCampaigns = getAvailableCampaigns();
+    final campaignGroupIds = availableCampaigns.map((c) => c.groupId).toSet();
+    return groups_data.getAllGroups()
+        .where((g) => campaignGroupIds.contains(g.id))
+        .toList();
   }
 }
 

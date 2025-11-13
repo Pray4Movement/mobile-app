@@ -2,6 +2,22 @@
 
 A Flutter mobile app prototype for viewing daily prayer content from prayer campaigns. This is a prototype with all data hardcoded and no API integration.
 
+## App Variants
+
+This app supports two build variants from a single codebase:
+
+- **Doxa Prayer App**: Dedicated app for Doxa Life campaigns only
+  - Bundle ID: `com.doxa.prayer`
+  - Only shows campaigns from "Doxa Life" group
+  - Custom Doxa branding
+
+- **Prayer App (General)**: General-purpose app for all campaigns
+  - Bundle ID: `com.prayer.app`
+  - Shows all campaigns (except Doxa Life)
+  - General branding
+
+Both variants share the same core functionality, with differences in campaign filtering, branding, and app metadata configured at build time.
+
 ## Features
 
 - **Campaign Chooser**: Browse and subscribe to prayer campaigns with search, filtering, and campaign code support
@@ -14,12 +30,21 @@ A Flutter mobile app prototype for viewing daily prayer content from prayer camp
 ## Requirements Overview
 
 - **Greyscale theme**: The UI uses an explicit greyscale color scheme with neutral tones (no color accents).
+- **Multi-build support**: The app supports building two variants (Doxa and General) with different branding, campaign filtering, and bundle IDs from a single codebase.
 
 ## Project Structure
 
 ```
 lib/
 ├── main.dart                 # App entry point with navigation setup
+├── config/                   # App configuration
+│   ├── app_config.dart      # Base config class
+│   ├── doxa_config.dart     # Doxa variant config
+│   ├── general_config.dart  # General variant config
+│   └── config_loader.dart   # Config loader based on APP_VARIANT
+├── branding/                # Variant-specific themes
+│   ├── doxa/theme.dart
+│   └── general/theme.dart
 ├── models/                   # Data models
 │   ├── campaign.dart
 │   ├── fuel.dart
@@ -51,7 +76,26 @@ lib/
 ├── utils/                    # Utility functions
 │   ├── date_utils.dart
 │   └── share_utils.dart
-└── theme.dart                # App theme
+└── theme.dart                # App theme (loads from config)
+
+branding/                     # Variant-specific assets (copied at build time)
+├── doxa/                     # Doxa assets
+├── general/                  # General assets
+└── current/                  # Build-time destination (gitignored)
+
+ios/assets/                   # iOS variant-specific assets
+├── doxa/Assets.xcassets/     # Doxa iOS icons/launch images
+└── general/Assets.xcassets/  # General iOS icons/launch images
+
+android/app/src/              # Android flavor resources
+├── main/res/                 # Shared resources
+├── doxa/res/                 # Doxa flavor resources
+└── general/res/               # General flavor resources
+
+scripts/                      # Build scripts
+├── copy_branding.sh          # Copies variant assets
+├── build_doxa.sh             # Builds Doxa variant
+└── build_general.sh          # Builds General variant
 ```
 
 ## Getting Started
@@ -69,9 +113,18 @@ flutter pub get
 ```
 
 2. Run the app:
+
+**Doxa variant:**
 ```bash
-flutter run
+flutter run --dart-define=APP_VARIANT=doxa --flavor doxa
 ```
+
+**General variant:**
+```bash
+flutter run --dart-define=APP_VARIANT=general --flavor general
+```
+
+**Note:** The build scripts (`./scripts/build_doxa.sh` and `./scripts/build_general.sh`) are for building release versions, not for running in development mode.
 
 ## Building and Testing
 
@@ -112,14 +165,23 @@ flutter devices
 
 **On Android (emulator or device):**
 ```bash
-flutter run
+# Doxa variant
+flutter run --dart-define=APP_VARIANT=doxa --flavor doxa
+
+# General variant
+flutter run --dart-define=APP_VARIANT=general --flavor general
+
 # Or specify device:
-flutter run -d <device-id>
+flutter run --dart-define=APP_VARIANT=general --flavor general -d <device-id>
 ```
 
 **On iOS (macOS only):**
 ```bash
-flutter run -d ios
+# Doxa variant
+flutter run --dart-define=APP_VARIANT=doxa --flavor doxa -d ios
+
+# General variant
+flutter run --dart-define=APP_VARIANT=general --flavor general -d ios
 ```
 
 **On Web:**
@@ -176,24 +238,69 @@ While the app is running:
 
 ### Build for Release
 
-#### Android APK:
+#### Using Build Scripts (Recommended)
+
+**Build Doxa Variant:**
 ```bash
-flutter build apk
-# Output: build/app/outputs/flutter-apk/app-release.apk
+# Android APK
+./scripts/build_doxa.sh apk
+
+# Android App Bundle (for Play Store)
+./scripts/build_doxa.sh appbundle
+
+# iOS (macOS only)
+./scripts/build_doxa.sh ios
+# Then open ios/Runner.xcworkspace in Xcode to archive
+```
+
+**Build General Variant:**
+```bash
+# Android APK
+./scripts/build_general.sh apk
+
+# Android App Bundle (for Play Store)
+./scripts/build_general.sh appbundle
+
+# iOS (macOS only)
+./scripts/build_general.sh ios
+# Then open ios/Runner.xcworkspace in Xcode to archive
+```
+
+#### Direct Flutter Commands
+
+**Android APK:**
+```bash
+# Doxa variant
+flutter build apk --dart-define=APP_VARIANT=doxa --flavor doxa
+# Output: build/app/outputs/flutter-apk/app-doxa-release.apk
+
+# General variant
+flutter build apk --dart-define=APP_VARIANT=general --flavor general
+# Output: build/app/outputs/flutter-apk/app-general-release.apk
 
 # For split APKs (smaller size):
-flutter build apk --split-per-abi
+flutter build apk --dart-define=APP_VARIANT=doxa --flavor doxa --split-per-abi
 ```
 
-#### Android App Bundle (for Play Store):
+**Android App Bundle (for Play Store):**
 ```bash
-flutter build appbundle
-# Output: build/app/outputs/bundle/release/app-release.aab
+# Doxa variant
+flutter build appbundle --dart-define=APP_VARIANT=doxa --flavor doxa
+# Output: build/app/outputs/bundle/doxaRelease/app-doxa-release.aab
+
+# General variant
+flutter build appbundle --dart-define=APP_VARIANT=general --flavor general
+# Output: build/app/outputs/bundle/generalRelease/app-general-release.aab
 ```
 
-#### iOS (macOS only):
+**iOS (macOS only):**
 ```bash
-flutter build ios
+# Doxa variant
+flutter build ios --dart-define=APP_VARIANT=doxa --flavor doxa
+# Then open ios/Runner.xcworkspace in Xcode to archive
+
+# General variant
+flutter build ios --dart-define=APP_VARIANT=general --flavor general
 # Then open ios/Runner.xcworkspace in Xcode to archive
 ```
 
@@ -249,7 +356,9 @@ xcrun simctl list devices
 ### Quick Test Checklist
 
 - [ ] App launches without errors
-- [ ] Campaign Chooser displays all campaigns
+- [ ] Campaign Chooser displays campaigns (filtered by variant)
+  - [ ] Doxa variant shows only Doxa Life campaigns
+  - [ ] General variant shows all campaigns (except Doxa Life)
 - [ ] Search and filters work
 - [ ] Can subscribe to campaigns
 - [ ] Prayer Feed shows subscribed campaign fuel
@@ -260,6 +369,7 @@ xcrun simctl list devices
 - [ ] Share functionality works
 - [ ] Navigation drawer works
 - [ ] State persists after app restart
+- [ ] Correct app name and branding for each variant
 
 ### Development Tips
 
@@ -271,6 +381,10 @@ xcrun simctl list devices
 ## Key Implementation Notes
 
 - **No API Calls**: All data is hardcoded in Dart files
+- **Multi-Build Configuration**: App supports two variants (Doxa and General) with different branding, campaign filtering, and bundle IDs
+- **Build Scripts**: Use `./scripts/build_doxa.sh` or `./scripts/build_general.sh` for easy building
+- **Asset Management**: Variant-specific assets are copied at build time to ensure only the correct variant's assets are included
+- **Campaign Filtering**: Doxa variant filters to "doxa-life" group, General variant shows all campaigns (except Doxa Life)
 - **Local Push Notifications**: Reminders schedule actual local notifications that fire at the specified times
 - **Notification Permissions**: The app requests notification permissions on first launch (Android 13+ and iOS)
 - **Notification Taps**: Tapping a notification opens the app and navigates to the Prayer Feed

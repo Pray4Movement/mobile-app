@@ -1,0 +1,4 @@
+#include "Generated.xcconfig"
+PRODUCT_BUNDLE_IDENTIFIER=com.doxa.prayer
+FLUTTER_BUILD_NAME=Doxa Prayer
+

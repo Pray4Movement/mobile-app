@@ -43,3 +43,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Build-time branding artifacts
+/branding/current/
+
+# iOS build-time assets (backup created during asset copying)
+/ios/Runner/Assets.xcassets.backup

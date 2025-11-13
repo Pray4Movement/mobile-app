@@ -1,0 +1,4 @@
+#include "Generated.xcconfig"
+PRODUCT_BUNDLE_IDENTIFIER=com.prayer.app
+FLUTTER_BUILD_NAME=Prayer App
+

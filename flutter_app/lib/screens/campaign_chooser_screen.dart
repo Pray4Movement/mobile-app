@@ -30,7 +30,7 @@ class _CampaignChooserScreenState extends State<CampaignChooserScreen> {
   }
 
   List<Campaign> _getFilteredCampaigns() {
-    var campaigns = DataService.getAllCampaigns();
+    var campaigns = DataService.getAvailableCampaigns();
 
     // Filter by search query
     if (_searchQuery.isNotEmpty) {
@@ -103,7 +103,7 @@ class _CampaignChooserScreenState extends State<CampaignChooserScreen> {
     final appState = Provider.of<AppState>(context);
     final filteredCampaigns = _getFilteredCampaigns();
     final groupedCampaigns = _getGroupedCampaigns(filteredCampaigns);
-    final groups = DataService.getAllGroups();
+    final groups = DataService.getAvailableGroups();
     final languageCodes = getAllLanguageCodes();
 
     return Scaffold(

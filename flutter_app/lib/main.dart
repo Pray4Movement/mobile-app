@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'theme.dart';
+import 'config/config_loader.dart';
+import 'config/app_config.dart';
 import 'services/state_service.dart';
 import 'services/notification_service.dart';
 import 'services/data_service.dart';
@@ -13,6 +15,10 @@ import 'utils/date_utils.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize app configuration
+  final config = ConfigLoader.load();
+  AppConfig.initialize(config);
 
   // Initialize notification service
   await NotificationService().initialize();
@@ -149,7 +155,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       create: (_) => AppState()..loadState(),
       child: MaterialApp(
         navigatorKey: navigatorKey,
-        title: 'Prayer App',
+        title: AppConfig.current.appName,
         theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
         home: const InitialRoute(),
