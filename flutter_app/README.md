@@ -96,6 +96,8 @@ scripts/                      # Build scripts
 ├── copy_branding.sh          # Copies variant assets
 ├── build_doxa.sh             # Builds Doxa variant
 └── build_general.sh          # Builds General variant
+
+develop-app.sh                # Development script for running app
 ```
 
 ## Getting Started
@@ -114,13 +116,30 @@ flutter pub get
 
 2. Run the app:
 
-**Doxa variant:**
+**Using the development script (recommended):**
 ```bash
-flutter run --dart-define=APP_VARIANT=doxa --flavor doxa
+# Doxa variant on Android
+./develop-app.sh doxa android
+
+# General variant on Android
+./develop-app.sh general android
+
+# Doxa variant on iOS (macOS only)
+./develop-app.sh doxa ios
+
+# General variant on iOS (macOS only)
+./develop-app.sh general ios
+
+# With specific device
+./develop-app.sh doxa android <device-id>
 ```
 
-**General variant:**
+**Direct Flutter commands:**
 ```bash
+# Doxa variant
+flutter run --dart-define=APP_VARIANT=doxa --flavor doxa
+
+# General variant
 flutter run --dart-define=APP_VARIANT=general --flavor general
 ```
 
@@ -162,6 +181,22 @@ flutter devices
 ```
 
 4. Run the app:
+
+**Using the development script (recommended):**
+```bash
+# Android
+./develop-app.sh doxa android
+./develop-app.sh general android
+
+# iOS (macOS only)
+./develop-app.sh doxa ios
+./develop-app.sh general ios
+
+# With specific device
+./develop-app.sh doxa android <device-id>
+```
+
+**Direct Flutter commands:**
 
 **On Android (emulator or device):**
 ```bash
