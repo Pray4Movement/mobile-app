@@ -8,34 +8,54 @@ Users will be able to create a fully customizable reminder that pops up notifica
 
 Clicking on the notification will take the user to that day's prayer content.
 
+### App Variants
+
+The app supports two build variants from a single codebase:
+
+**Doxa Prayer App**: A dedicated app for Doxa Life prayer campaigns
+- Only displays campaigns from the "Doxa Life" group
+- Custom Doxa branding (colors, icons, app name)
+- Bundle ID: `com.doxa.prayer`
+
+**Prayer App (General)**: A general-purpose app for all prayer campaigns
+- Displays all available campaigns from the prayer.tools directory
+- General branding (colors, icons, app name)
+- Bundle ID: `com.prayer.app`
+
+Both variants share the same core functionality and codebase, with differences in campaign filtering, branding, and app metadata configured at build time.
+
 ## User Journeys
 
-When the user installs the app from the app store, the first screen they see will be a selection of Prayer campaigns from the campaign directory from the prayer.tools API. This gives the user the choice of which campaign to join.
+* When the user installs the app from the app store, the first screen they see will be a selection of Prayer campaigns from the campaign directory from the prayer.tools API. This gives the user the choice of which campaign to join.
 
-When the user clicks on the app icon on their device, if they have subscribed to a campaign, it will take them straight to the 'Prayer Feed' screen.
-If they have not subscribed to a campaign it will take them to the campaign chooser.
+* When the user clicks on the app icon on their device, if they have subscribed to a campaign, it will take them straight to the 'Prayer Feed' screen.
+* If they have not subscribed to a campaign it will take them to the campaign chooser.
 
-From the 'Prayer Feed' screen they can click any day's prayer fuel, which will take them to the 'Prayer Fuel' screen with the chosen day's content loaded.
+* From the 'Prayer Feed' screen they can click any day's prayer fuel, which will take them to the 'Prayer Fuel' screen with the chosen day's content loaded.
 
-When a campaign reminder notification is clicked, this should take them to the prayer content for that campaign for the current day.
+* When a campaign reminder notification is clicked, this should take them to the prayer content for that campaign for the current day.
 
 ## Screens
 
 ### Campaign chooser
 
-This screen will have a search bar to filter the campaigns by name, and a filter button to filter campaigns by language.
+* This screen will have a search bar to filter the campaigns by name, and a filter button to filter campaigns by language.
 
-It will have the ability to input a unique campaign code, that will filter the list directly to the campaign that they have the code for.
+* It will have the ability to input a unique campaign code, that will filter the list directly to the campaign that they have the code for.
 
-The campaigns will be grouped into different sections with top level buttons to filter to the campaigns in each group.
+* The campaigns will be grouped into different sections with top level buttons to filter to the campaigns in each group.
 
-A count of how many campaigns are currently displayed in the filtered list will be shown. This count will update automatically as filters are applied (search term, campaign code, language, or group filters).
+* A count of how many campaigns are currently displayed in the filtered list will be shown. This count will update automatically as filters are applied (search term, campaign code, language, or group filters).
 
-The searchable list of campaigns will come from a prayer.tools API directory listing of public campaigns.
+* The searchable list of campaigns will come from a prayer.tools API directory listing of public campaigns.
 
-Campaigns that the user is already subscribed to will be visually marked in the chooser (e.g., a "Subscribed" badge with a checkmark and distinct styling) so users can quickly see their existing subscriptions.
+**Variant-Specific Behavior:**
+- **Doxa App**: Only displays campaigns from the "Doxa Life" group by default. Users can still filter by search, language, or campaign code within the available Doxa campaigns.
+- **General App**: Displays all campaigns from all groups except Doxa. Users can filter by group, search, language, or campaign code.
 
-The campaign chooser screen will have navigation controls to allow users to exit without subscribing to a campaign. This includes a back button (which navigates to the previous page or to the Campaigns tab if available).
+* Campaigns that the user is already subscribed to will be visually marked in the chooser (e.g., a "Subscribed" badge with a checkmark and distinct styling) so users can quickly see their existing subscriptions.
+
+* The campaign chooser screen will have navigation controls to allow users to exit without subscribing to a campaign. This includes a back button (which navigates to the previous page or to the Campaigns tab if available).
 
 Example groupings
 * Doxa Life
@@ -52,31 +72,31 @@ Example Campaigns
 
 ### Prayer Feed
 
-This page will have some info on their current prayer reminder schedule, as well as a way to edit their reminders.
+* This page will have some info on their current prayer reminder schedule, as well as a way to edit their reminders.
 
-It will have a list of prayer fuel grouped by day (they may have subscribed to several campaigns). Each item in the list will have the campaign name, a short description of the day's prayer content and a button to go to that days Prayer fuel.
+* It will have a list of prayer fuel grouped by day (they may have subscribed to several campaigns). Each item in the list will have the campaign name, a short description of the day's prayer content and a button to go to that days Prayer fuel.
 
-Prayer fuel items that have been marked as "prayed" will be visually indicated with a checkmark (✓) icon and distinct styling to show which days the user has already prayed for.
+* Prayer fuel items that have been marked as "prayed" will be visually indicated with a checkmark (✓) icon and distinct styling to show which days the user has already prayed for.
 
-The prayer fuel contents list will come from a prayer.fuel directory API
+* The prayer fuel contents list will come from a prayer.fuel directory API
 
 ### Prayer Fuel
 
-This page will contain the content for the chosen campaign and day.
-It will be built from the JSON data given by the prayer.tools endpoint.
-The data will first be fetched from the endpoint, and then rendered using blocks such as headings, lists, images, buttons, etc.
-There will be a button to share this campaign, and the ability to change language for this campaign.
-When the page is opened a prayer.tools API endpoint will be hit to signify the start of the prayer time.
-At the bottom of the page content will be a button 'I prayed' which when clicked will hit a prayer.tools API endpoint to signify the end of the prayer time, mark that day's prayer fuel as 'prayed' (with a visual checkmark indicator), and the app will go back to the Prayer Feed screen. If the prayer has already been marked as prayed, the button will display "✓ Prayed" to indicate the status.
+* This page will contain the content for the chosen campaign and day.
+* It will be built from the JSON data given by the prayer.tools endpoint.
+* The data will first be fetched from the endpoint, and then rendered using blocks such as headings, lists, images, buttons, etc.
+* There will be a button to share this campaign, and the ability to change language for this campaign.
+* When the page is opened a prayer.tools API endpoint will be hit to signify the start of the prayer time.
+* At the bottom of the page content will be a button 'I prayed' which when clicked will hit a prayer.tools API endpoint to signify the end of the prayer time, mark that day's prayer fuel as 'prayed' (with a visual checkmark indicator), and the app will go back to the Prayer Feed screen. If the prayer has already been marked as prayed, the button will display "✓ Prayed" to indicate the status.
 
 ### Campaigns
 
-This page will contain a list of the campaigns that the user has subscribed to.
-Each campaign will have a kebab menu where they can 'unsubscribe', 'change language', 'share' etc.
-There will be a button to allow the user to find a new campaign to subscribe to.
-This button will take them to the 'Campaign Chooser' screen.
+* This page will contain a list of the campaigns that the user has subscribed to.
+* Each campaign will have a kebab menu where they can 'unsubscribe', 'change language', 'share' etc.
+* There will be a button to allow the user to find a new campaign to subscribe to.
+* This button will take them to the 'Campaign Chooser' screen.
 
 ## UI
 
-There will be a menu allowing the user to click to the 'Prayer fuel' screen, and the 'campaigns' screen.
-There will be a button to share the app, as well as the ability to switch language.
+* There will be a menu allowing the user to click to the 'Prayer fuel' screen, and the 'campaigns' screen.
+* There will be a button to share the app, as well as the ability to switch language.

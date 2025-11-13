@@ -10,6 +10,7 @@
 - POST to prayer.tools API to track prayer session end
 - Handle network errors and retry logic
 - Support for authentication/authorization if required by APIs
+- **Campaign Filtering**: Client-side filtering of campaigns based on app variant (Doxa app filters to "doxa-life" group, General app shows all campaigns)
 
 ## Data Storage
 
@@ -68,4 +69,74 @@
 - Platform-specific notification handling
 - Platform-specific sharing mechanisms
 - Platform-specific storage (secure storage for sensitive data)
+
+## Multi-Build Configuration
+
+The app supports building two variants (Doxa and General) from a single codebase using a configuration-based approach.
+
+### Configuration System
+
+- **App Configuration**: Runtime configuration loaded based on `APP_VARIANT` build argument
+  - `DoxaConfig`: Filters campaigns to "doxa-life" group, uses Doxa branding
+  - `GeneralConfig`: Shows all campaigns except doxa-life, uses general branding
+- **Build-time Configuration**: Set via `--dart-define=APP_VARIANT={variant}` and `--flavor {variant}` flags
+
+### Variant Differences
+
+**Doxa Variant:**
+- Campaign filter: Only "doxa-life" group campaigns
+- App name: "Doxa Prayer"
+- Bundle IDs: `com.doxa.prayer` (Android/iOS)
+- Branding: Doxa-specific theme colors, icons, splash screens
+
+**General Variant:**
+- Campaign filter: All campaigns (no group restriction)
+- App name: "Prayer App"
+- Bundle IDs: `com.prayer.app` (Android/iOS)
+- Branding: General theme colors, icons, splash screens
+
+### Asset Management
+
+**Flutter Assets:**
+- Stored in `branding/{variant}/` folders
+- Copied to `branding/current/` at build time
+- Only selected variant's assets included in final bundle
+
+**Android Assets:**
+- Uses native product flavors (`doxa` and `general`)
+- Resources in `android/app/src/{flavor}/res/` automatically merged by Gradle
+- Flavor-specific icons, strings, and drawables
+
+**iOS Assets:**
+- Stored in `ios/assets/{variant}/Assets.xcassets/`
+- Copied to `ios/Runner/Assets.xcassets/` at build time
+- Variant-specific app icons and launch images
+
+### Build Process
+
+**Build Scripts:**
+- `scripts/copy_branding.sh`: Copies variant-specific assets (Flutter and iOS)
+- `scripts/build_doxa.sh`: Builds Doxa variant for specified platform
+- `scripts/build_general.sh`: Builds General variant for specified platform
+
+**Build Commands:**
+```bash
+# Build Doxa variant
+./scripts/build_doxa.sh [apk|appbundle|ios]
+
+# Build General variant
+./scripts/build_general.sh [apk|appbundle|ios]
+```
+
+**Build Steps:**
+1. Copy variant-specific Flutter assets to `branding/current/`
+2. Copy variant-specific iOS assets to `ios/Runner/Assets.xcassets/` (for iOS builds)
+3. Build with Flutter using `--dart-define=APP_VARIANT={variant}` and `--flavor {variant}`
+
+### Campaign Filtering Implementation
+
+- `DataService.getAvailableCampaigns()`: Filters campaigns based on `AppConfig.current.campaignGroupFilter`
+- `DataService.getAvailableGroups()`: Filters groups to only those with available campaigns
+- Campaign chooser automatically uses filtered campaigns based on app variant
+- Filtering happens at runtime based on configuration loaded at app startup
 
